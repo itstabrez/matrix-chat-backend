@@ -1,0 +1,37 @@
+services:
+  matrix-db:
+    image: postgres:16-alpine
+    container_name: matrix-local-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: synapse
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: synapse
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    volumes:
+      - matrix_pg_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U synapse -d synapse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: matrix-local-synapse
+    restart: unless-stopped
+    depends_on:
+      matrix-db:
+        condition: service_healthy
+    environment:
+      SYNAPSE_CONFIG_DIR: /data
+      SYNAPSE_CONFIG_PATH: /data/homeserver.yaml
+    ports:
+      - "8008:8008"
+    volumes:
+      - ./synapse-data:/data
+
+volumes:
+  matrix_pg_data:
