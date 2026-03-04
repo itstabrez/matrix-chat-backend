@@ -22,6 +22,16 @@ listeners:
     type: http
     x_forwarded: true
 federation_domain_whitelist: []
+rc_login:
+  address:
+    per_second: 10000
+    burst_count: 10000
+  account:
+    per_second: 10000
+    burst_count: 10000
+  failed_attempts:
+    per_second: 10000
+    burst_count: 10000
 database:
   name: psycopg2
   args:
